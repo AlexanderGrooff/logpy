@@ -3,10 +3,7 @@ import operator
 from itertools import permutations
 
 from unification import var, isvar, unify
-# TODO: we should be able to register new reification processes without
-# importing private methods.
-from unification.core import _reify
-from unification.more import unifiable, reify_object
+from unification.more import unifiable
 
 from .core import (eq, EarlyGoalError, conde, condeseq, lany, lallgreedy, lall,
                    fail, success)
@@ -238,14 +235,3 @@ def _lcons_unify(lcons, t, s):
 @unify.register((list, tuple), LCons, dict)
 def _lcons_runify(t, lcons, s):
     return _lcons_unify(lcons, t, s)
-
-
-@_reify.register(LCons, dict)
-def reify_lcons(lcons, s):
-    ret = reify_object(lcons, s)
-    try:
-        # Simplify to a tuple once we've reified, if possible.
-        ret = ret.as_tuple()
-    except (TypeError, EarlyGoalError):
-        pass
-    return ret
